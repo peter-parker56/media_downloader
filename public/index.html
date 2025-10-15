@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Youtube Video Downloader</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Youtube Video Downloader</h1>
+        <form id="downloadForm">
+            <input type="text" id="urlInput" placeholder="Enter Youtube URL.." required>
+            <button type="submit">Get Resolutions</button>
+        </form>
+
+        <div id="resolutionOptions" style="display: none;">
+            <label for="resolutionSelect">Select Resolutions:</label>
+            <select id="resolutionSelect"></select>
+            <button id="downloadButton">Download</button>
+        </div>
+
+        <div id="status"></div> <!--For error/success messages -->
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
