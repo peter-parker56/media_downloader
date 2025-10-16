@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Media Downloader</title>
+    <style>
+        /* --- Mint/Navy Color Styling --- */
+        :root {
+            --bg-color: #0A192F;        /* Deep Navy Blue */
+            --card-color: #112240;      /* Slightly lighter Navy/Card background */
+            --text-color: #E6F1FF;      /* Lightest text (Off-White) */
+            --primary-color: #64FFDA;   /* Mint Green accent for buttons/focus */
+            --error-color: #FF6B6B;     /* Red for errors */
+            --success-color: #64FFDA;   /* Mint Green for success */
+            --border-radius: 6px;
+            --box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 550px;
+            background-color: var(--card-color);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            text-align: center;
+            border-top: 5px solid var(--primary-color);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        p.subtitle {
+            margin-top: 0;
+            margin-bottom: 30px;
+            font-size: 0.95em;
+            color: #A8B2D1;
+        }
+
+        /* --- Form Layout --- */
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .select-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        input[type="url"], select {
+            padding: 15px;
+            border: 1px solid #334466;
+            border-radius: var(--border-radius);
+            background-color: #172A45;
+            color: var(--text-color);
+            font-size: 1em;
+            width: 100%;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        input[type="url"]:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(100, 255, 218, 0.3);
+        }
+        
+        /* --- Button --- */
+        button {
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: var(--bg-color); 
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: #52e3c0; 
+        }
+
+        /* --- Messages --- */
+        .flash-message {
+            padding: 12px;
+            border-radius: var(--border-radius);
+            margin-top: 20px;
+            font-weight: 500;
+            text-align: left;
+            border-left: 5px solid;
+        }
+        .flash-message.error {
+            color: var(--error-color);
+            background-color: #3b1616;
+            border-left-color: var(--error-color);
+        }
+        .flash-message.success {
+            color: var(--success-color);
+            background-color: #163b3b;
+            border-left-color: var(--success-color);
+        }
+
+        /* --- Footer --- */
+        footer {
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid #334466;
+            color: #A8B2D1;
+            font-size: 0.8em;
+        }
+        
+        /* --- Notification Pop-up (for JavaScript) --- */
+        #notification-popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #163b3b;
+            color: var(--success-color);
+            padding: 15px 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            opacity: 0;
+            transition: opacity 0.5s, transform 0.5s;
+            transform: translateY(-50px);
+            z-index: 1000;
+            border-left: 5px solid var(--success-color);
+            pointer-events: none; /* Prevents blocking clicks */
+        }
+        #notification-popup.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Universal Downloader</h1>
+        <p class="subtitle">Paste your media URL and select the desired quality.</p>
+
+        <form method="POST" action="{{ url_for('download_media') }}" onsubmit="showNotification()">
+            <input type="url" name="url" placeholder="Paste media URL here..." required>
+            
+            <div class="select-group">
+                <select name="format_selection" required>
+                    <option value="" disabled selected>Select Format & Quality</option>
+                    <optgroup label="Video (MP4)">
+                        <option value="mp4-1080">Video - 1080p</option>
+                        <option value="mp4-720">Video - 720p (Recommended)</option>
+                        <option value="mp4-480">Video - 480p</option>
+                    </optgroup>
+                    <optgroup label="Audio Only (MP3)">
+                        <option value="mp3-320">Audio - 320kbps (High)</option>
+                        <option value="mp3-192">Audio - 192kbps (Standard)</option>
+                        <option value="mp3-128">Audio - 128kbps</option>
+                    </optgroup>
+                </select>
+            </div>
+            
+            <button type="submit">Download Now</button>
+        </form>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <p class="flash-message {{ category }}">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <footer>
+            <small>The file is deleted from the server immediately after it's sent to your browser.</small>
+        </footer>
+    </div>
+    
+    <div id="notification-popup">
+        Download Started! Please check your browser's download manager.
+    </div>
+
+    <script>
+        function showNotification() {
+            // This JavaScript runs when the form is submitted
+            const urlInput = document.querySelector('input[name="url"]').value;
+            const formatSelect = document.querySelector('select[name="format_selection"]').value;
+
+            // Only show notification if inputs are valid
+            if (urlInput && formatSelect) {
+                const popup = document.getElementById('notification-popup');
+                popup.classList.add('show');
+                
+                // Hide the notification after 5 seconds
+                setTimeout(() => {
+                    popup.classList.remove('show');
+                }, 5000);
+            }
+            // The form will submit automatically after this function runs
+        }
+    </script>
+</body>
+</html>
