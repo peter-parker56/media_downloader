@@ -108,6 +108,7 @@
             font-weight: 500;
             text-align: left;
             border-left: 5px solid;
+            word-wrap: break-word;
         }
         .flash-message.error {
             color: var(--error-color);
@@ -128,28 +129,6 @@
             color: #A8B2D1;
             font-size: 0.8em;
         }
-        
-        /* --- Notification Pop-up (for JavaScript) --- */
-        #notification-popup {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background-color: #163b3b;
-            color: var(--success-color);
-            padding: 15px 25px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            opacity: 0;
-            transition: opacity 0.5s, transform 0.5s;
-            transform: translateY(-50px);
-            z-index: 1000;
-            border-left: 5px solid var(--success-color);
-            pointer-events: none; /* Prevents blocking clicks */
-        }
-        #notification-popup.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
     </style>
 </head>
 <body>
@@ -157,7 +136,15 @@
         <h1>🚀 Universal Downloader</h1>
         <p class="subtitle">Paste your media URL and select the desired quality.</p>
 
-        <form method="POST" action="{{ url_for('download_media') }}" onsubmit="showNotification()">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <p class="flash-message {{ category }}">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('download_media') }}">
             <input type="url" name="url" placeholder="Paste media URL here..." required>
             
             <div class="select-group">
@@ -179,41 +166,9 @@
             <button type="submit">Download Now</button>
         </form>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <p class="flash-message {{ category }}">{{ message }}</p>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
         <footer>
             <small>The file is deleted from the server immediately after it's sent to your browser.</small>
         </footer>
     </div>
-    
-    <div id="notification-popup">
-        Download Started! Please check your browser's download manager.
-    </div>
-
-    <script>
-        function showNotification() {
-            // This JavaScript runs when the form is submitted
-            const urlInput = document.querySelector('input[name="url"]').value;
-            const formatSelect = document.querySelector('select[name="format_selection"]').value;
-
-            // Only show notification if inputs are valid
-            if (urlInput && formatSelect) {
-                const popup = document.getElementById('notification-popup');
-                popup.classList.add('show');
-                
-                // Hide the notification after 5 seconds
-                setTimeout(() => {
-                    popup.classList.remove('show');
-                }, 5000);
-            }
-            // The form will submit automatically after this function runs
-        }
-    </script>
 </body>
 </html>
