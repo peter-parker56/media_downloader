@@ -2,16 +2,9 @@ services:
   - type: web
     name: media-downloader
     env: python
-    # This command installs the necessary system tool, FFmpeg, using apt-get, 
-    # and then installs all Python packages from requirements.txt.
     buildCommand: |
       sudo apt-get update && sudo apt-get install -y ffmpeg
       pip install -r requirements.txt
-    
-    # Gunicorn is the production server that runs your Flask app (app:app)
     startCommand: gunicorn app:app
-    
-    # You may need a plan higher than Free/Starter due to bandwidth/CPU usage 
-    # required for video downloads and processing.
-    plan: starter 
+    plan: starter
     rootDir: .
